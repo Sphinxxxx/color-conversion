@@ -1,11 +1,11 @@
 {
   "name": "color-conversion",
-  "version": "1.0.1",
-  "description": "transform color to any type such 'rgb' or 'hsl'",
+  "version": "2.0.0-alpha.1",
+  "description": "Convert colors between RGBA/HSLA/Hex",
   "main": "lib/color.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Joudee",
+  "author": "Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)",
   "license": "ISC"
 }

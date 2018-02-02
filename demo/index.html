@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>color-conversion</title>
+        
+        <script src="../src/color.js"></script>
+        <style>
+            li {
+                display: table;
+                background-image: repeating-linear-gradient(90deg, gray 0, gray 12px, white 0, white 24px);
+            }
+            li div {
+                display: inline-block;
+                width: 14em;
+                height: 2em;
+                padding: .5em;
+                margin: -.25em;
+                border: .5em solid white;
+                overflow: hidden;
+                text-shadow: 1px 1px 0 white;
+            }
+        </style>
+    </head>
+    <body>
+        <ul>
+            <li>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </li>
+            <li>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </li>
+            <li>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </li>
+            <li>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </li>
+        </ul>
+        
+        <script>
+            /* global Color */
+            
+            function $$(selector, context) {
+                return Array.from((context || document).querySelectorAll(selector));
+            }
+            
+            function setColor(el, color) {
+                color = color.replace(/(\.\d\d)\d+/g, '$1')
+                             .replace(/\,/g, ', ');
+                
+                el.style.backgroundColor = color;
+                el.textContent = color;
+            }
+            
+            const hex = '#' + Math.round(Math.random() * 0xFFFF).toString(16),
+                  base = new Color(hex),
+                  reps = [
+                      hex,
+                      base.rgbaString,
+                      base.hslaString,
+                      base.hex,
+                  ];
+
+            $$('li').forEach((li, i) => {
+                const swatches = $$('div', li),
+                      color = new Color(reps[i]);
+                
+                setColor(swatches[0], reps[i]);
+                setColor(swatches[1], color.rgbaString);
+                setColor(swatches[2], color.hslaString);
+                setColor(swatches[3], color.hex);
+            });
+        </script>
+    </body>
+</html>

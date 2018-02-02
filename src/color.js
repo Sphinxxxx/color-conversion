@@ -1,181 +1,221 @@
-!(function(global, factory){
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    global.colorType = factory()
-}(this,function(){
-	function Color(color){
-		this.color = color;
-	}
+class Color {
 
-	Color.prototype.toRGB = function(){
-		var color = this.color;
-		switch(true){
-			case color.indexOf('#')==0||color.toString().length==6:
-				color = hex_to_rgb(color.substring(0,color.toString().length));
-				break;
-			case color.indexOf('hsl')>-1||color.indexOf('HSL')>-1:
-				color = hsl_to_rgb(color,'hsl');
-				break;
-			case color.indexOf('%')>-1:
-				color = hsl_to_rgb(color,'%');
-				break;
-		}
-		return color
-	}
+	constructor(r, g, b, a) {
 
-	Color.prototype.toHSL = function(){
-		var color = this.color;
-		switch(true){
-			case color.indexOf(',')>-1:
-				color = rgb_to_hsl(color);
-				break;
-			case color.indexOf('#')==0||color.length==6:
-				color = hex_to_hsl(color);
-				break;
-		}
-		return color
-	}
+        const that = this;
+		function parseString(input) {
 
-	Color.prototype.toHEX = function(){
-		var color = this.color;
-		switch(true){
-			case color.indexOf('hsl')>-1||color.indexOf('HSL')>-1:
-				var rgbColor = hsl_to_rgb(color,'hsl');
-				color = rgb_to_hex(rgbColor);
-				break;
-			case color.indexOf('%')>-1:
-				var rgbColor = hsl_to_rgb(color);
-				color = rgb_to_hex(rgbColor);
-				break;
-			case color.indexOf('rgb')>-1||color.indexOf('RGB')>-1:
-				var arr = color.split('(')[1].split(')')[0];
-				arr = arr.split(',');
-				color = rgb_to_hex(arr);
-				break;
-		}
-		return color
-	}
+			//Hex string:
+			if( input.startsWith('#') ) {
+				that.rgba = Color._hexToRgb(input);
+			}
 
-	function rgb_to_hex(color){
-		return color[0].toString(16)+color[1].toString(16)+color[2].toString(16)
-	}
+			//HSL string. Examples:
+			//	hsl(120, 60%,  50%) or 
+			//	hsla(240, 100%, 50%, .7)
+			else if( input.startsWith('hsl') ) {
+				let [h, s, l, a] = input.match(/([\-\d\.e]+)/g).map(Number);
+				if(a === undefined) { a = 1; }
 
-	function rgb_to_hsl(color){
-		var arr = [];
-		if(color.indexOf('rgb')>-1||color.indexOf('RGB')>-1){
-			arr = color.split('(')[1].split(')')[0];
-			arr = arr.split(',');
-		}else{
-			arr = color.split(',');
-		}
-		var r = arr[0]/255, g = arr[1]/255, b = arr[2]/255;
-	    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-	    var h, 
-	    	s, 
-	    	l = (max + min) / 2;
+				h /= 360;
+				s /= 100;
+				l /= 100;
+				that.hsla = [h, s, l, a];
+			}
 
-	    if(max == min){
-	        h = s = 0; // achromatic
-	    }else{
-	        var d = max - min;
-	        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-	        switch(max){
-	            case r: h = (g - b) / d*60 + (g<b?360:0); break;
-	            case g: h = (b - r) / d*60 + 120;break;
-	            case b: h = (r - g) / d*60 + 240;break;
-	        }
-	    }
-	    h = parseInt(h);
-	    s = parseInt(s*100);
-	    l = parseInt(l*100);
-	    return [h, s, l]
-	}
-
-	function hex_to_hsl(color){
-		var color = color.indexOf('#')==0?color.substring(0,color.toString().length):color;
-		var rgbColor = hex_to_rgb(color);
-		rgbColor = ''+rgbColor[0]+','+rgbColor[1]+','+rgbColor[2]+'';
-		return rgb_to_hsl(rgbColor)
-	}
-
-	function hsl_to_rgb(color,type){
-		var colorArr = [];
-		if(type=='hsl'||type=='HSL'){
-			colorArr = color.split('(')[1].split(')')[0];
-			colorArr = colorArr.split(',');
-		}else{
-			colorArr = color.split(',');
-		}
-		var h = parseInt(colorArr[0]),
-			s = parseInt(colorArr[1].substring(0,colorArr[1].length-1))/100,
-			l = parseInt(colorArr[2].substring(0,colorArr[2].length-1))/100;
-		var c = (1-Math.abs(2*l - 1))*s,
-			x = c*(1-Math.abs((h/60)%2-1)),
-			m = l-c/2;
-		var r,g,b;
-		switch(true){
-			case h>-1&&h<60:
-				r = c;
-				g = x;
-				b = 0
-				break;
-			case h>59&&h<120:
-				r = x;
-				g = c;
-				b = 0;
-				break;
-			case h>119&&h<180:
-				r = 0;
-				g = c;
-				b = x;
-				break;
-			case h>179&&h<240:
-				r = 0;
-				g = x;
-				b = c;
-				break;
-			case h>239&&h<300:
-				r = x;
-				g = 0;
-				b = c;
-				break;
-			case h>299&&h<360:
-				r = c;
-				g = 0;
-				b = x;
-				break;
-		}
-		return [parseInt((r+m)*255),parseInt((g+m)*255),parseInt((b+m)*255)]
-	}
-
-	function hex_to_rgb(color){
-		var colorArr = color.split('');
-		var trans = [],
-			preW = '';
-		for(var i=0;i<colorArr.length;i++){
-			var v = colorArr[i];
-			if(i%2!=0||i==0){
-				preW += v;
-				if(i==colorArr.length-1){
-					trans.push(preW)
-				}
-			}else{
-				trans.push(preW)
-				preW = v
+			//RGB string. Examples:
+			//	rgb(51, 170, 51)
+			//	rgba(51, 170, 51, .7)
+			else {
+				let [r, g, b, a] = input.match(/([\-\d\.e]+)/g).map(Number);
+				if(a === undefined) { a = 1; }
+				
+				that.rgba = [r, g, b, a];
 			}
 		}
-		for(var j=0;j<trans.length;j++){
-			trans[j] = parseInt(trans[j],16)
+		
+		
+		if( r === undefined ) {
+			//No color input - the color can be set later through .hsla/.rgba/.hex
 		}
-		return trans
+
+		//Single input - RGB(A) array
+		else if( Array.isArray(r) ) {
+			this.rgba = r;
+		}
+
+		//Single input - CSS string
+		else if( b === undefined ) {
+			const color = r && ('' + r).trim();
+			if(color) {
+				parseString(color.toLowerCase());
+			}
+		}
+
+		else {
+			this.rgba = [r, g, b, (a === undefined) ? 1 : a];
+		}
 	}
 
-	function creat_color(color){
-		if(!color){
-			console.error('not catch any color!');
-			return false
-		}
-		return new Color(color)
+
+	/* RGBA representation */
+
+	get rgba() {
+		if(this._rgba) { return this._rgba; }
+		if(!this._hsla) { throw new Error('No color is set'); }
+		
+		return (this._rgba = Color._hslToRgb(this._hsla));
 	}
-	return creat_color
-}))
+	get rgbString()  { return `rgb(${ this.rgba.slice(0, 3) })`; }
+	get rgbaString() { return `rgba(${ this.rgba })`; }
+
+	set rgba(rgb) {
+		if(rgb.length === 3) { rgb[3] = 1; }
+		
+		this._rgba = rgb;
+		this._hsla = null;
+	}
+
+
+	/* HSLA representation */
+
+	get hsla() {
+		if(this._hsla) { return this._hsla; }
+		if(!this._rgba) { throw new Error('No color is set'); }
+		
+		return (this._hsla = Color._rgbToHsl(this._rgba));
+	}
+	get hslString() {
+		const c = this.hsla;
+		return `hsl(${ c[0]*360 },${ c[1]*100 }%,${ c[2]*100 }%)`;
+	}
+	get hslaString() {
+		const c = this.hsla;
+		return `hsla(${ c[0]*360 },${ c[1]*100 }%,${ c[2]*100 }%,${ c[3] })`;
+	}
+
+	set hsla(hsl) {
+		if(hsl.length === 3) { hsl[3] = 1; }
+		
+		this._hsla = hsl;
+		this._rgba = null;
+	}
+
+
+	/* HEX representation */
+
+	get hex() {
+		const rgb = this.rgba,
+			  hex = rgb.map((x, i) => (i < 3) ? x.toString(16) 
+											  : (x * 255).toString(16));
+
+		return '#' + hex.map(x => x.padStart(2, '0')).join('');
+	}
+	
+	set hex(hex) {
+		this.rgba = Color._hexToRgb(hex);
+	}
+
+
+	/* Conversion utils */
+
+    static _hexToRgb(color) {
+
+		//Normalize all hex codes (3/4/6/8 digits) to 8 digits RGBA:
+		const hex = (color.startsWith('#') ? color.slice(1) : color)
+			.replace(/^(\w{3})$/,          '$1F')                   //987      -> 987F
+			.replace(/^(\w)(\w)(\w)(\w)$/, '$1$1$2$2$3$3$4$4')      //9876     -> 99887766
+			.replace(/^(\w{6})$/,          '$1FF');                 //987654   -> 987654FF
+
+		if(!hex.match(/^(\w{8})$/)) { throw new Error('Unknown hex color; ' + color); }
+
+		const rgba = hex
+			.match(/^(\w\w)(\w\w)(\w\w)(\w\w)$/).slice(1)  //98765432 -> 98 76 54 32
+			.map(x => parseInt(x, 16));                    //Hex to decimal
+
+		rgba[3] = rgba[3]/255;
+		return rgba;
+    }
+
+
+	/**
+	 * https://gist.github.com/mjackson/5311256
+	 * 
+	 * Converts an RGB color value to HSL. Conversion formula
+	 * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+	 * Assumes r, g, and b are contained in the set [0, 255] and
+	 * returns h, s, and l in the set [0, 1].
+	 */
+    static _rgbToHsl([r, g, b, a]) {
+
+        r /= 255;
+        g /= 255;
+        b /= 255;
+
+        const max = Math.max(r, g, b),
+        	  min = Math.min(r, g, b);
+        let h,
+        	s,
+        	l = (max + min) / 2;
+
+        if(max === min){
+	        h = s = 0; // achromatic
+	    }
+	    else {
+	        const d = max - min;
+	        s = (l > 0.5) ? d / (2 - max - min) 
+	        			  : d / (max + min);
+	        switch(max) {
+	            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+	            case g: h = (b - r) / d + 2; break;
+	            case b: h = (r - g) / d + 4; break;
+	        }
+	        
+	        h /= 6;
+	    }
+	    
+        return [h, s, l, a];
+    }
+
+
+	/**
+	 * https://gist.github.com/mjackson/5311256
+	 * 
+	 * Converts an HSL color value to RGB. Conversion formula
+	 * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+	 * Assumes h, s, and l are contained in the set [0, 1] and
+	 * returns r, g, and b in the set [0, 255].
+	 */
+    static _hslToRgb([h, s, l, a]) {
+
+		let r, g, b;
+		
+		if (s === 0) {
+			r = g = b = l; // achromatic
+		}
+		else {
+			const hue2rgb = function(p, q, t) {
+				if (t < 0) t += 1;
+				if (t > 1) t -= 1;
+				if (t < 1/6) return p + (q - p) * 6 * t;
+				if (t < 1/2) return q;
+				if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+				return p;
+			};
+		
+			const q = (l < 0.5) ? l * (1 + s) 
+								: l + s - (l * s),
+				  p = (2 * l) - q;
+			
+			r = hue2rgb(p, q, h + 1/3);
+			g = hue2rgb(p, q, h);
+			b = hue2rgb(p, q, h - 1/3);
+		}
+		
+		const rgba = [r * 255, g * 255, b * 255].map(Math.round);
+		rgba[3] = a;
+		
+		return rgba;
+    }
+
+}
