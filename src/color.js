@@ -1,3 +1,7 @@
+/*global String*/
+String.prototype.startsWith = (String.prototype.startsWith || function(needle)   { return (this.indexOf(needle) === 0); });
+String.prototype.padStart   = (String.prototype.padStart   || function(len, pad) { let str = this; while(str.length < len) { str = pad + str; }; return str; });
+
 class Color {
 
 	constructor(r, g, b, a) {
@@ -7,7 +11,7 @@ class Color {
 
 			//Hex string:
 			if( input.startsWith('#') ) {
-				that.rgba = Color._hexToRgb(input);
+				that.rgba = Color.hexToRgb(input);
 			}
 
 			//HSL string. Examples:
@@ -64,7 +68,7 @@ class Color {
 		if(this._rgba) { return this._rgba; }
 		if(!this._hsla) { throw new Error('No color is set'); }
 		
-		return (this._rgba = Color._hslToRgb(this._hsla));
+		return (this._rgba = Color.hslToRgb(this._hsla));
 	}
 	get rgbString()  { return `rgb(${ this.rgba.slice(0, 3) })`; }
 	get rgbaString() { return `rgba(${ this.rgba })`; }
@@ -83,7 +87,7 @@ class Color {
 		if(this._hsla) { return this._hsla; }
 		if(!this._rgba) { throw new Error('No color is set'); }
 		
-		return (this._hsla = Color._rgbToHsl(this._rgba));
+		return (this._hsla = Color.rgbToHsl(this._rgba));
 	}
 	get hslString() {
 		const c = this.hsla;
@@ -113,21 +117,24 @@ class Color {
 	}
 	
 	set hex(hex) {
-		this.rgba = Color._hexToRgb(hex);
+		this.rgba = Color.hexToRgb(hex);
 	}
+
 
 
 	/* Conversion utils */
 
-    static _hexToRgb(color) {
 
-		//Normalize all hex codes (3/4/6/8 digits) to 8 digits RGBA:
-		const hex = (color.startsWith('#') ? color.slice(1) : color)
+	/**
+	 * Normalize all hex codes (3/4/6/8 digits) to 8 digits RGBA
+	 */
+    static hexToRgb(input) {
+		const hex = (input.startsWith('#') ? input.slice(1) : input)
 			.replace(/^(\w{3})$/,          '$1F')                   //987      -> 987F
 			.replace(/^(\w)(\w)(\w)(\w)$/, '$1$1$2$2$3$3$4$4')      //9876     -> 99887766
 			.replace(/^(\w{6})$/,          '$1FF');                 //987654   -> 987654FF
 
-		if(!hex.match(/^(\w{8})$/)) { throw new Error('Unknown hex color; ' + color); }
+		if(!hex.match(/^(\w{8})$/)) { throw new Error('Unknown hex color; ' + input); }
 
 		const rgba = hex
 			.match(/^(\w\w)(\w\w)(\w\w)(\w\w)$/).slice(1)  //98765432 -> 98 76 54 32
@@ -146,7 +153,7 @@ class Color {
 	 * Assumes r, g, and b are contained in the set [0, 255] and
 	 * returns h, s, and l in the set [0, 1].
 	 */
-    static _rgbToHsl([r, g, b, a]) {
+    static rgbToHsl([r, g, b, a]) {
 
         r /= 255;
         g /= 255;
@@ -186,7 +193,7 @@ class Color {
 	 * Assumes h, s, and l are contained in the set [0, 1] and
 	 * returns r, g, and b in the set [0, 255].
 	 */
-    static _hslToRgb([h, s, l, a]) {
+    static hslToRgb([h, s, l, a]) {
 
 		let r, g, b;
 		
@@ -219,3 +226,6 @@ class Color {
     }
 
 }
+
+
+export default Color;

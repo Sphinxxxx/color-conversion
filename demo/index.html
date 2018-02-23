@@ -3,7 +3,8 @@
     <head>
         <title>color-conversion</title>
         
-        <script src="../src/color.js"></script>
+        <script src="../dist/color-conversion.min.js"></script>
+
         <style>
             li {
                 display: table;
@@ -51,7 +52,7 @@
         
         <script>
             /* global Color */
-            
+            Array.from = Array.from || function(list) { return Array.prototype.slice.call(list); };
             function $$(selector, context) {
                 return Array.from((context || document).querySelectorAll(selector));
             }
@@ -73,7 +74,7 @@
                       base.hex,
                   ];
 
-            $$('li').forEach((li, i) => {
+            $$('li').forEach(function(li, i) {
                 const swatches = $$('div', li),
                       color = new Color(reps[i]);
                 

@@ -6,9 +6,9 @@ Demo: https://rawgit.com/Sphinxxxx/color-conversion/master/demo/index.html
 
 ## Usage
 
-Download 'color.js' from this repository. Then, add it as a script tag to your page:
 ```js
-<script type="text/javascript" src='color.js'></script>
+<script src="https://unpkg.com/@sphinxxxx/color-conversion@2.0.0-alpha.3"></script>
+
 <script>
     //rgba/hsla/hex strings, or rgba array:
     var color = new Color('rgb(200, 250, 0)');
