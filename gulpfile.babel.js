@@ -26,7 +26,7 @@ import * as pkg from './package.json';
 
 const globalName = 'Color',
       outFolder = 'dist/',
-      //Remove scope from output path:
+      //Remove scope (if any) from output path:
       outFile = pkg.name.replace(/.*\//, '');
 
 const myBanner = `/*!
@@ -81,7 +81,7 @@ gulp.task('build', function() {
             .pipe(rename({ extname: '.min.js' }))
             .pipe(uglify())
 
-            .pipe(header(myBanner, { pkg : pkg }))
+            .pipe(header(myBanner, { pkg: pkg }))
             .pipe(gulp.dest(outFolder));
         //);
     });

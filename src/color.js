@@ -111,7 +111,7 @@ class Color {
 	get hex() {
 		const rgb = this.rgba,
 			  hex = rgb.map((x, i) => (i < 3) ? x.toString(16) 
-											  : (x * 255).toString(16));
+											  : Math.round(x * 255).toString(16));
 
 		return '#' + hex.map(x => x.padStart(2, '0')).join('');
 	}

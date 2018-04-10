@@ -1,5 +1,5 @@
 /*!
- * @sphinxxxx/color-conversion v2.0.0-alpha.3
+ * @sphinxxxx/color-conversion v2.0.0
  * https://github.com/Sphinxxxx/color-conversion
  *
  * Copyright 2017-2018 Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)
@@ -217,7 +217,7 @@ var Color = function () {
 		get: function get$$1() {
 			var rgb = this.rgba,
 			    hex = rgb.map(function (x, i) {
-				return i < 3 ? x.toString(16) : (x * 255).toString(16);
+				return i < 3 ? x.toString(16) : Math.round(x * 255).toString(16);
 			});
 
 			return '#' + hex.map(function (x) {
