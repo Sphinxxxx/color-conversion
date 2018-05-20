@@ -1,16 +1,16 @@
 # color-conversion
 
-JavaScript library for color conversion and manipulation with support for CSS color strings.
+JavaScript library for color conversion and manipulation with support for CSS color syntax.
 
 Demo: https://rawgit.com/Sphinxxxx/color-conversion/master/demo/index.html
 
 ## Usage
 
 ```js
-<script src="https://unpkg.com/@sphinxxxx/color-conversion@2.0.0-alpha.3"></script>
+<script src="https://unpkg.com/@sphinxxxx/color-conversion@2"></script>
 
 <script>
-    //rgba/hsla/hex strings, or rgba array:
+    //rgba/hsla/hex string, CSS color name, or rgba array:
     var color = new Color('rgb(200, 250, 0)');
     
     color.hsla;  // [0.2, 1, 0.49, 1]

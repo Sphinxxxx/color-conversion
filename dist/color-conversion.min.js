@@ -1,5 +1,5 @@
 /*!
- * @sphinxxxx/color-conversion v2.1.0
+ * @sphinxxxx/color-conversion v2.1.1
  * https://github.com/Sphinxxxx/color-conversion
  *
  * Copyright 2017-2018 Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)
