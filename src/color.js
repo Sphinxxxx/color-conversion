@@ -1,6 +1,25 @@
 /*global String*/
+/*global atob*/
 String.prototype.startsWith = (String.prototype.startsWith || function(needle)   { return (this.indexOf(needle) === 0); });
 String.prototype.padStart   = (String.prototype.padStart   || function(len, pad) { let str = this; while(str.length < len) { str = pad + str; }; return str; });
+
+
+/*
+	Code golfing:
+	This is a compacted list of all 148 CSS color names (from https://github.com/bahamas10/css-color-names/blob/master/css-color-names.json).
+	Every seven characters in this array is a name and its RGB value.
+
+		//3 chars name hash (rudimentary, but just enough to separate all unique colors),
+		//based on https://stackoverflow.com/a/15710692/1869660
+		hash = [].reduce.call(name.replace('ey','ay'), (h, c) => (h << 2) + c.charCodeAt(0), 0)
+							.toString(36).slice(-3);
+
+		//4 chars base64 color value. Split the hex into [R, G, B], cast to bytes and base64-encode the byte array:
+		hex64 = btoa( hex.match(/../g).map(x => String.fromCharCode(parseInt(x, 16))).join('') );
+*/
+const colorNames = '735AACA770//Xub218Pj/mo5+uvX6mdAP//gtpf//Ur258P//q1d9fXcxop/+TEq9zAAAAqfg/+vN6m1AAD/ngoiiviqt6pSoqzyo3riHxvdX56grk1f/8Aax10mkeqts/39QxbtZJXttkb//jcyxm3BQ86rmAP//wl5AACLwqqAIuL3y8uIYLwv1qampniqAGQAns5vbdrmohiwCLw5uVWsvsdd/4wAsegmTLMqagiwAAsqi6ZZ6uz6j7yPxtzSD2Lxk3L09PudbAM7RwsolADT0kz/xSTfuhAL//vfhaWlpyuxHpD/43rsiIiwn9//rw39uIosi9bp/wD/6w73Nzc9s5+Pj/6v8/9cA3b42qUg6vxgICArmaAIAAtdfrf8vf9n8P/wek3/2m0xnczVxc3bvSwCCsdt///wrvp8OaMs5i5ub6iyk//D1e8ifPwAoui//rNpyxrdjmw9c8ICAq4i4P//mx9+vrSq8t09PTx1ukO6Qqlv/7bBuuy/6B690uILKqpfdh876sd9d4iZnehsMTe0dv///g71lAP8A4nmMs0ys9u+vDmg9d/wD/4pmgAAAcurZs2qzllAADN4lkulXT6txk3Db66qPLNxozre2juokuAPqalj3SNHMgdkxxWF60pGRlwxfl9f/6hr5/+Thx6q/+S1m85/96tutd/fXmszxgIAAe4ma44j8rl/6UAmu0/0UA8so2nDWji87uiqumqmPuY9xbr+7u4rs23CTsb8/+/V95a/9q577xzYU/78z/8DL7b53aDdsu1sODmb11gACAy5nZjOZ1so/wAAlvevI+Pn09QWnhm7ui0UT94q+oBy7ei9KRg5aqLotXad5oFItasmwMDAaihh87r9fdalrN9p9cICQ7gz//r6k5uAP9/4qhRoK01te0rSM7cwAICA91x2L/Yclr/2NHcw1QODQd6w7oLuua09d6zudh////t359fX1enn//8Ao0ims0y';
+let  colorNamesDeser;
+
 
 class Color {
 
@@ -9,15 +28,10 @@ class Color {
         const that = this;
 		function parseString(input) {
 
-			//Hex string:
-			if( input.startsWith('#') ) {
-				that.rgba = Color.hexToRgb(input);
-			}
-
 			//HSL string. Examples:
 			//	hsl(120, 60%,  50%) or 
 			//	hsla(240, 100%, 50%, .7)
-			else if( input.startsWith('hsl') ) {
+			if( input.startsWith('hsl') ) {
 				let [h, s, l, a] = input.match(/([\-\d\.e]+)/g).map(Number);
 				if(a === undefined) { a = 1; }
 
@@ -30,11 +44,21 @@ class Color {
 			//RGB string. Examples:
 			//	rgb(51, 170, 51)
 			//	rgba(51, 170, 51, .7)
-			else {
+			else if( input.startsWith('rgb') ) {
 				let [r, g, b, a] = input.match(/([\-\d\.e]+)/g).map(Number);
 				if(a === undefined) { a = 1; }
 				
 				that.rgba = [r, g, b, a];
+			}
+
+			//Hex string or color name:
+			else {
+				if( input.startsWith('#') ) {
+					that.rgba = Color.hexToRgb(input);
+				}
+				else {
+					that.rgba = Color.nameToRgb(input) || Color.hexToRgb(input);
+				}
 			}
 		}
 		
@@ -134,7 +158,7 @@ class Color {
 			.replace(/^(\w)(\w)(\w)(\w)$/, '$1$1$2$2$3$3$4$4')      //9876     -> 99887766
 			.replace(/^(\w{6})$/,          '$1FF');                 //987654   -> 987654FF
 
-		if(!hex.match(/^(\w{8})$/)) { throw new Error('Unknown hex color; ' + input); }
+		if(!hex.match(/^([0-9a-fA-F]{8})$/)) { throw new Error('Unknown hex color; ' + input); }
 
 		const rgba = hex
 			.match(/^(\w\w)(\w\w)(\w\w)(\w\w)$/).slice(1)  //98765432 -> 98 76 54 32
@@ -143,6 +167,25 @@ class Color {
 		rgba[3] = rgba[3]/255;
 		return rgba;
     }
+
+
+	/**
+	 * Get the RGB values from a CSS color name
+	 */
+	static nameToRgb(input) {
+		//See comments on colorNames
+
+		if(!colorNamesDeser) {
+		    colorNamesDeser = {};
+		    colorNames.match(/.{7}/g).forEach(x =>
+				colorNamesDeser[x.slice(0, 3)] = atob(x.slice(-4)).split('').map(b => b.charCodeAt(0))
+		    );
+		}
+		const hash = [].reduce.call(input.replace('ey', 'ay'), (h, c) => (h << 2) + c.charCodeAt(0), 0)
+								.toString(36).slice(-3);
+
+		return colorNamesDeser[hash];
+	}
 
 
 	/**

@@ -1,5 +1,5 @@
 /*!
- * @sphinxxxx/color-conversion v2.0.0
+ * @sphinxxxx/color-conversion v2.1.0
  * https://github.com/Sphinxxxx/color-conversion
  *
  * Copyright 2017-2018 Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)
@@ -82,6 +82,9 @@ String.prototype.padStart = String.prototype.padStart || function (len, pad) {
 	}return str;
 };
 
+var colorNames = '735AACA770//Xub218Pj/mo5+uvX6mdAP//gtpf//Ur258P//q1d9fXcxop/+TEq9zAAAAqfg/+vN6m1AAD/ngoiiviqt6pSoqzyo3riHxvdX56grk1f/8Aax10mkeqts/39QxbtZJXttkb//jcyxm3BQ86rmAP//wl5AACLwqqAIuL3y8uIYLwv1qampniqAGQAns5vbdrmohiwCLw5uVWsvsdd/4wAsegmTLMqagiwAAsqi6ZZ6uz6j7yPxtzSD2Lxk3L09PudbAM7RwsolADT0kz/xSTfuhAL//vfhaWlpyuxHpD/43rsiIiwn9//rw39uIosi9bp/wD/6w73Nzc9s5+Pj/6v8/9cA3b42qUg6vxgICArmaAIAAtdfrf8vf9n8P/wek3/2m0xnczVxc3bvSwCCsdt///wrvp8OaMs5i5ub6iyk//D1e8ifPwAoui//rNpyxrdjmw9c8ICAq4i4P//mx9+vrSq8t09PTx1ukO6Qqlv/7bBuuy/6B690uILKqpfdh876sd9d4iZnehsMTe0dv///g71lAP8A4nmMs0ys9u+vDmg9d/wD/4pmgAAAcurZs2qzllAADN4lkulXT6txk3Db66qPLNxozre2juokuAPqalj3SNHMgdkxxWF60pGRlwxfl9f/6hr5/+Thx6q/+S1m85/96tutd/fXmszxgIAAe4ma44j8rl/6UAmu0/0UA8so2nDWji87uiqumqmPuY9xbr+7u4rs23CTsb8/+/V95a/9q577xzYU/78z/8DL7b53aDdsu1sODmb11gACAy5nZjOZ1so/wAAlvevI+Pn09QWnhm7ui0UT94q+oBy7ei9KRg5aqLotXad5oFItasmwMDAaihh87r9fdalrN9p9cICQ7gz//r6k5uAP9/4qhRoK01te0rSM7cwAICA91x2L/Yclr/2NHcw1QODQd6w7oLuua09d6zudh////t359fX1enn//8Ao0ims0y';
+var colorNamesDeser = void 0;
+
 var Color = function () {
 	function Color(r, g, b, a) {
 		classCallCheck(this, Color);
@@ -90,41 +93,45 @@ var Color = function () {
 		var that = this;
 		function parseString(input) {
 
-			if (input.startsWith('#')) {
-				that.rgba = Color.hexToRgb(input);
+			if (input.startsWith('hsl')) {
+				var _input$match$map = input.match(/([\-\d\.e]+)/g).map(Number),
+				    _input$match$map2 = slicedToArray(_input$match$map, 4),
+				    h = _input$match$map2[0],
+				    s = _input$match$map2[1],
+				    l = _input$match$map2[2],
+				    _a = _input$match$map2[3];
+
+				if (_a === undefined) {
+					_a = 1;
+				}
+
+				h /= 360;
+				s /= 100;
+				l /= 100;
+				that.hsla = [h, s, l, _a];
 			}
 
-			else if (input.startsWith('hsl')) {
-					var _input$match$map = input.match(/([\-\d\.e]+)/g).map(Number),
-					    _input$match$map2 = slicedToArray(_input$match$map, 4),
-					    h = _input$match$map2[0],
-					    s = _input$match$map2[1],
-					    l = _input$match$map2[2],
-					    _a = _input$match$map2[3];
+			else if (input.startsWith('rgb')) {
+					var _input$match$map3 = input.match(/([\-\d\.e]+)/g).map(Number),
+					    _input$match$map4 = slicedToArray(_input$match$map3, 4),
+					    _r = _input$match$map4[0],
+					    _g = _input$match$map4[1],
+					    _b = _input$match$map4[2],
+					    _a2 = _input$match$map4[3];
 
-					if (_a === undefined) {
-						_a = 1;
+					if (_a2 === undefined) {
+						_a2 = 1;
 					}
 
-					h /= 360;
-					s /= 100;
-					l /= 100;
-					that.hsla = [h, s, l, _a];
+					that.rgba = [_r, _g, _b, _a2];
 				}
 
 				else {
-						var _input$match$map3 = input.match(/([\-\d\.e]+)/g).map(Number),
-						    _input$match$map4 = slicedToArray(_input$match$map3, 4),
-						    _r = _input$match$map4[0],
-						    _g = _input$match$map4[1],
-						    _b = _input$match$map4[2],
-						    _a2 = _input$match$map4[3];
-
-						if (_a2 === undefined) {
-							_a2 = 1;
+						if (input.startsWith('#')) {
+							that.rgba = Color.hexToRgb(input);
+						} else {
+							that.rgba = Color.nameToRgb(input) || Color.hexToRgb(input);
 						}
-
-						that.rgba = [_r, _g, _b, _a2];
 					}
 		}
 
@@ -237,7 +244,7 @@ var Color = function () {
 			.replace(/^(\w)(\w)(\w)(\w)$/, '$1$1$2$2$3$3$4$4') 
 			.replace(/^(\w{6})$/, '$1FF'); 
 
-			if (!hex.match(/^(\w{8})$/)) {
+			if (!hex.match(/^([0-9a-fA-F]{8})$/)) {
 				throw new Error('Unknown hex color; ' + input);
 			}
 
@@ -248,6 +255,26 @@ var Color = function () {
 
 			rgba[3] = rgba[3] / 255;
 			return rgba;
+		}
+
+
+	}, {
+		key: 'nameToRgb',
+		value: function nameToRgb(input) {
+
+			if (!colorNamesDeser) {
+				colorNamesDeser = {};
+				colorNames.match(/.{7}/g).forEach(function (x) {
+					return colorNamesDeser[x.slice(0, 3)] = atob(x.slice(-4)).split('').map(function (b) {
+						return b.charCodeAt(0);
+					});
+				});
+			}
+			var hash = [].reduce.call(input.replace('ey', 'ay'), function (h, c) {
+				return (h << 2) + c.charCodeAt(0);
+			}, 0).toString(36).slice(-3);
+
+			return colorNamesDeser[hash];
 		}
 
 

@@ -9,6 +9,7 @@
             #combos li {
                 display: table;
                 background-image: repeating-linear-gradient(90deg, gray 0, gray 12px, white 0, white 24px);
+                white-space: nowrap;
             }
             #combos li div {
                 display: inline-block;
@@ -112,6 +113,8 @@
                       ];
 
                 singleConv.forEach((el, i) => setColor(el, reps[i]));
+
+                singleInput.select();
             };
             
             singleInput.onchange();
