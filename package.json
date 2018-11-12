@@ -1,6 +1,6 @@
 {
   "name": "@sphinxxxx/color-conversion",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Convert colors between RGBA/HSLA/Hex",
   "homepage": "https://github.com/Sphinxxxx/color-conversion",
   "author": "Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)",
@@ -16,6 +16,8 @@
     "dist/"
   ],
   "scripts": {
+    "prepublish": "bash ./scripts/prepub.sh",
+    "postpublish": "bash ./scripts/postpub.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {

@@ -21,6 +21,9 @@
                 overflow: hidden;
                 text-shadow: 1px 1px 0 white;
             }
+            #single li {
+                border-left: 30px solid;
+            }
         </style>
     </head>
     <body>
@@ -67,19 +70,24 @@
                 return Array.from((context || document).querySelectorAll(selector));
             }
             
-            function setColor(el, color) {
-                color = color.replace(/(\.\d\d)\d+/g, '$1')
-                             .replace(/\,/g, ', ');
+            function setColor(el, colorA, color) {
+                //color = color.replace(/(\.\d\d)\d+/g, '$1')
+                //             .replace(/\,/g, ', ');
                 
-                el.style.backgroundColor = color;
-                el.textContent = color;
+                el.style.backgroundColor = colorA;
+                el.textContent = colorA;
+                
+                if(color) {
+                   el.style.borderColor = color;
+                }
             }
             
             
             //Auto-combos:
             const hex = '#' + Math.round(Math.random() * 0xFFFF).toString(16),
-                  base = new Color(hex),
-                  reps = [
+                  base = new Color(hex);
+            //base.hsla = [Math.random(), Math.random(), Math.random(), Math.random()];
+            const reps = [
                       hex,
                       base.rgbaString,
                       base.hslaString,
@@ -91,9 +99,9 @@
                       color = new Color(reps[i]);
                 
                 setColor(swatches[0], reps[i]);
-                setColor(swatches[1], color.rgbaString);
-                setColor(swatches[2], color.hslaString);
-                setColor(swatches[3], color.hex);
+                setColor(swatches[1], color.rgbaString, color.rgbString);
+                setColor(swatches[2], color.hslaString, color.hslString);
+                setColor(swatches[3], color.hex,        color.printHex());
             });
             
             
@@ -105,14 +113,11 @@
                 const val = singleInput.value;
                 if(!val) { return; }
 
-                const c = new Color(val),
-                      reps = [
-                          c.rgbaString,
-                          c.hslaString,
-                          c.hex,
-                      ];
+                const color = new Color(val);
 
-                singleConv.forEach((el, i) => setColor(el, reps[i]));
+                setColor(singleConv[0], color.rgbaString, color.rgbString);
+                setColor(singleConv[1], color.hslaString, color.hslString);
+                setColor(singleConv[2], color.hex,        color.printHex());
 
                 singleInput.select();
             };
