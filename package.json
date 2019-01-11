@@ -1,6 +1,6 @@
 {
   "name": "@sphinxxxx/color-conversion",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Convert colors between RGBA/HSLA/Hex",
   "homepage": "https://github.com/Sphinxxxx/color-conversion",
   "author": "Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)",
